@@ -28,12 +28,21 @@ router.post("/classify", async function (req, res, next) {
     MaxLabels: 10,
   };
 
-  const rekognitionResponse = await rekognition.detectLabels(params).promise();
-  const response = rekognitionResponse.Labels.map((label) => label.Name);
+  try {
+    const rekognitionResponse = await rekognition
+      .detectLabels(params)
+      .promise();
+    const response = rekognitionResponse.Labels.map((label) => label.Name);
 
-  res.json({
-    "labels": response
-  });
+    res.json({
+      labels: response,
+    });
+  } catch (error) {
+    console.error("routes/vision.js | Error classifying image: ", error); // Can add this on a logger instead on console
+    res
+      .status(500)
+      .json({ error: "An error occurred while processing the image." });
+  }
 });
 
 module.exports = router;
